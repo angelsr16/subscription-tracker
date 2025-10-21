@@ -8,10 +8,13 @@ import SidebarMenu from "./sidebar.menu";
 import { BellPlus, CalendarPlus, LogOut } from "lucide-react";
 import useSidebar from "@/hooks/useSidebar";
 import Home from "@/assets/icons/home";
+import useUser from "@/hooks/useUser";
 
 const SidebarBarWrapper = () => {
   const { activeSidebar, setActiveSidebar } = useSidebar();
   const pathName = usePathname();
+
+  const { user, isLoading } = useUser();
 
   useEffect(() => {
     setActiveSidebar(pathName);
@@ -34,6 +37,10 @@ const SidebarBarWrapper = () => {
       className="sidebar-wrapper"
     >
       <div className="block my-3 h-full">
+        <Sidebar.Header className="my-5">
+          <h1 className="font-semibold">{user?._id}</h1>
+        </Sidebar.Header>
+
         <Sidebar.Body className="body sidebar">
           <SidebarItem
             title="Dashboard"
@@ -80,7 +87,7 @@ const SidebarBarWrapper = () => {
                 />
               }
               isActive={activeSidebar === "/logout"}
-              href="/"
+              href="/login"
             />
           </SidebarMenu>
         </Sidebar.Body>
