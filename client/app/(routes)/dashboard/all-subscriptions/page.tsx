@@ -90,7 +90,7 @@ const AllSubscriptions = () => {
                   {format(new Date(subscription.renewalDate), "dd/MM/yyyy")}
                 </td>
                 <td className="px-6 py-4 flex gap-2">
-                  <PenBox className="text-blue-500 cursor-pointer" size={20} />
+                  {/* <PenBox className="text-blue-500 cursor-pointer" size={20} /> */}
                   <Trash2
                     onClick={() => {
                       setSelectedSubscription(subscription);

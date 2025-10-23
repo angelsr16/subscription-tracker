@@ -40,6 +40,7 @@ const Login = () => {
       router.push("/dashboard");
     },
     onError: (error: AxiosError) => {
+      console.log(error);
       const errorMessage =
         (error.response?.data as { message?: string })?.message ||
         "Invalid credentials";

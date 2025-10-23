@@ -1,4 +1,4 @@
-import React from "react";
+'use client'
 
 const notFound = () => {
   return <div>Not found bla bla</div>;
