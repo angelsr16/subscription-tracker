@@ -5,7 +5,7 @@ import { Subscription } from "@/types/subscription";
 import axiosInstance from "@/utils/axiosInstance";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { PenBox, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
 
 const AllSubscriptions = () => {
