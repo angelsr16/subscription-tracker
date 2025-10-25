@@ -93,7 +93,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-10 bg-neutral-800 text-white">
+        <main className="flex-1 overflow-y-auto md:p-10 p-4 bg-neutral-800 text-white">
           {children}
         </main>
       </div>
