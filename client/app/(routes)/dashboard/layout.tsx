@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Menu,
@@ -9,6 +9,8 @@ import {
   BellPlus,
   ClipboardClock,
 } from "lucide-react";
+import useSidebar from "@/hooks/useSidebar";
+import { usePathname } from "next/navigation";
 
 const navItems = [
   {
@@ -32,6 +34,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const toggleSidebar = () => setIsOpen(!isOpen);
 
+  const { activeSidebar, setActiveSidebar } = useSidebar();
+  const pathName = usePathname();
+
+  useEffect(() => {
+    setActiveSidebar(pathName);
+  }, [pathName, setActiveSidebar]);
+
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
@@ -53,8 +62,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.name}
                 href={item.href}
-                className="flex items-center space-x-3 p-2 rounded-md hover:bg-neutral-600 transition-colors"
-                onClick={() => setIsOpen(false)} // close sidebar on mobile click
+                className={`flex items-center space-x-3 p-2 rounded-md hover:bg-neutral-600 transition-colors ${
+                  activeSidebar === item.href &&
+                  "scale-[.98] bg-[#0f3158] fill-blue-200 hover:!bg-[#0f3158d6]"
+                }`}
+                onClick={() => setIsOpen(false)}
               >
                 {item.icon}
                 <span>{item.name}</span>
