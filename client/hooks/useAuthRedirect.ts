@@ -2,13 +2,13 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import axiosInstance from "@/utils/axiosInstance";
 
 export default function useAuthRedirect({ requireAuth = false }) {
   const router = useRouter();
 
   useEffect(() => {
-    axios
+    axiosInstance
       .get(`${process.env.NEXT_PUBLIC_SERVER_URI}/api/v1/auth/logged-in-user`, {
         withCredentials: true,
       })

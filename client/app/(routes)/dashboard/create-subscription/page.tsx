@@ -47,9 +47,12 @@ const CreateSubscription = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-10">Subscription</h1>
+      <h1 className="text-3xl font-bold mb-10">Register Subscription</h1>
 
-      <form className="p-5 rounded-lg w-2/3" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        className="p-5 rounded-lg lg:w-2/3 w-full"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <div className="flex gap-2 mb-4">
           <div className="w-1/3 mb-4">
             <label className="block font-semibold text-gray-300 mb-1">
@@ -58,7 +61,7 @@ const CreateSubscription = () => {
 
             <input
               type="text"
-              className={`w-full border outline-none border-gray-700 bg-transparent p-2 rounded-md text-white`}
+              className={`w-full border outline-none border-zinc-600 bg-transparent p-2 rounded-md text-white`}
               {...register("name", { required: "Name is required" })}
             />
 
@@ -77,7 +80,7 @@ const CreateSubscription = () => {
             <input
               type="number"
               step="any"
-              className={`w-full border outline-none border-gray-700 bg-transparent p-2 rounded-md text-white`}
+              className={`w-full border outline-none border-zinc-600 bg-transparent p-2 rounded-md text-white`}
               {...register("price", {
                 valueAsNumber: true,
                 min: { value: 1, message: "Price must be at least 1" },
@@ -105,7 +108,7 @@ const CreateSubscription = () => {
               render={({ field }) => (
                 <select
                   {...field}
-                  className="w-full border outline-none border-gray-700 bg-transparent p-2 rounded-md"
+                  className="w-full border outline-none border-zinc-600 bg-transparent p-2 rounded-md"
                 >
                   <option value="" className="bg-black">
                     Select currency
@@ -145,7 +148,7 @@ const CreateSubscription = () => {
               render={({ field }) => (
                 <select
                   {...field}
-                  className="w-full border outline-none border-gray-700 bg-transparent p-2 rounded-md"
+                  className="w-full border outline-none border-zinc-600 bg-transparent p-2 rounded-md"
                 >
                   <option value="" className="bg-black">
                     Select frecuency
@@ -183,7 +186,7 @@ const CreateSubscription = () => {
               render={({ field }) => (
                 <select
                   {...field}
-                  className="w-full border outline-none border-gray-700 bg-transparent p-2 rounded-md"
+                  className="w-full border outline-none border-zinc-600 bg-transparent p-2 rounded-md"
                 >
                   <option value="" className="bg-black">
                     Select category
@@ -221,7 +224,7 @@ const CreateSubscription = () => {
               render={({ field }) => (
                 <select
                   {...field}
-                  className="w-full border outline-none border-gray-700 bg-transparent p-2 rounded-md text-white"
+                  className="w-full border outline-none border-zinc-600 bg-transparent p-2 rounded-md text-white"
                 >
                   <option value="">Select payment method</option>
 
@@ -256,7 +259,7 @@ const CreateSubscription = () => {
 
             <input
               type="date"
-              className="w-full border outline-none border-gray-700 bg-transparent p-2 rounded-md text-white"
+              className="w-full border outline-none border-zinc-600 bg-transparent p-2 rounded-md text-white"
               max={new Date().toISOString().split("T")[0]} // prevents future dates
               {...register("startDate", {
                 required: "Start date is required",
@@ -279,12 +282,12 @@ const CreateSubscription = () => {
           </div>
         </div>
 
-        <hr className="my-5 text-slate-700" />
+        <hr className="my-5 text-zinc-500" />
 
         <div className="flex justify-end">
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md cursor-pointer"
+            className="px-4 py-2 bg-zinc-900 hover:bg-zinc-950 text-white rounded-md cursor-pointer"
             disabled={createSubscriptionMutation.isPending}
           >
             {createSubscriptionMutation.isPending ? "Creating..." : "Create"}

@@ -48,29 +48,33 @@ const AllSubscriptions = () => {
     <div>
       <h1 className="text-3xl font-bold text-white">Subscriptions</h1>
 
-      <div className="relative overflow-x-auto mt-10">
-        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-slate-900 dark:text-white">
+      <div className="overflow-x-auto mt-10">
+        <table className="w-full table-fixed text-sm text-left rtl:text-right">
+          <thead className="text-xs text-gray-700 uppercase bg-zinc-900 dark:text-white">
             <tr>
-              <th className="px-6 py-3">Name</th>
-              <th className="px-6 py-3">Price</th>
-              <th className="px-6 py-3">Status</th>
-              <th className="px-6 py-3">Last Renewal Date</th>
-              <th className="px-6 py-3">Renewal Date</th>
-              <th className="px-6 py-3">Actions</th>
+              <th className="px-6 py-3 w-[120px]">Name</th>
+              <th className="px-6 py-3 w-[100px]">Price</th>
+              <th className="px-6 py-3 w-[120px]">Status</th>
+              <th className="px-6 py-3 w-[160px] whitespace-nowrap">
+                Last Renewal Date
+              </th>
+              <th className="px-6 py-3 w-[160px] whitespace-nowrap">
+                Renewal Date
+              </th>
+              <th className="px-6 py-3 w-[100px]">Actions</th>
             </tr>
           </thead>
           <tbody>
             {userSubscriptions.map((subscription) => (
-              <tr key={subscription._id} className="border-slate-800 border-b">
-                <td
-                  scope="row"
-                  className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                >
+              <tr
+                key={subscription._id}
+                className="border-zinc-700 border-b text-white/80"
+              >
+                <td className="px-6 py-4 font-medium truncate">
                   {subscription.name}
                 </td>
-                <td className="px-6 py-4">
-                  $ {subscription.price} {subscription.currency}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  ${subscription.price} {subscription.currency}
                 </td>
                 <td
                   className={`px-6 py-4 font-semibold ${
@@ -83,14 +87,13 @@ const AllSubscriptions = () => {
                 >
                   {subscription.status}
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 whitespace-nowrap">
                   {format(new Date(subscription.startDate), "dd/MM/yyyy")}
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 whitespace-nowrap">
                   {format(new Date(subscription.renewalDate), "dd/MM/yyyy")}
                 </td>
-                <td className="px-6 py-4 flex gap-2">
-                  {/* <PenBox className="text-blue-500 cursor-pointer" size={20} /> */}
+                <td className="px-6 py-4 flex gap-2 shrink-0">
                   <Trash2
                     onClick={() => {
                       setSelectedSubscription(subscription);
