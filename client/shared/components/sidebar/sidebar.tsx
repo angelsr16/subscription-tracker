@@ -86,7 +86,6 @@ const SidebarBarWrapper = () => {
                   color={getIconColor("/dashboard/create-product")}
                 />
               }
-              isActive={activeSidebar === "/logout"}
               href="/login"
             />
           </SidebarMenu>

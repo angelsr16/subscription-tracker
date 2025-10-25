@@ -5,6 +5,7 @@ import { currencies } from "@/utils/currencies";
 import { frecuencies } from "@/utils/frecuencies";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 
 type FormData = {
   name: string;
@@ -32,7 +33,10 @@ const CreateSubscription = () => {
       await axiosInstance.post("/api/v1/subscriptions", data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["shop-discounts"] });
+      queryClient.invalidateQueries({ queryKey: ["user-subscriptions"] });
+      toast.success("Subscription Added", {
+        position: "top-right",
+      });
       reset();
     },
   });

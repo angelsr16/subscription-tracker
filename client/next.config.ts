@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "export",
-  images: { remotePatterns: [{ hostname: "platform.theverge.com" }] },
+//   images: { remotePatterns: [{ hostname: "platform.theverge.com" }] },
 };
 
 export default nextConfig;

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import React, { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import axios, { AxiosError } from "axios";
+import useAuthRedirect from "@/hooks/useAuthRedirect";
 
 type FormData = {
   name: string;
@@ -14,6 +15,7 @@ type FormData = {
 };
 
 const SignUp = () => {
+  useAuthRedirect({ requireAuth: false });
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
   const [canResend, setCanResend] = useState(true);

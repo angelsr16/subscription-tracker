@@ -1,4 +1,5 @@
 "use client";
+import useAuthRedirect from "@/hooks/useAuthRedirect";
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import { Eye, EyeOff } from "lucide-react";
@@ -13,6 +14,7 @@ type FormData = {
 };
 
 const Login = () => {
+  useAuthRedirect({ requireAuth: false });
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [rememberMe, setRememberMe] = useState(false);
