@@ -97,7 +97,7 @@ export const getUpcomingRenewalDates = async (req, res, next) => {
 
         const upcomingRenewals = await Subscription.find({
             renewalDate: { $in: targetDays }
-        }).select('name renewalDate')
+        }).select('name renewalDate').populate('user', 'email')
 
         res.status(200).json({ success: true, data: upcomingRenewals })
 
