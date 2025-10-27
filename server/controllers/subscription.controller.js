@@ -93,7 +93,6 @@ export const getUpcomingRenewalDates = async (req, res, next) => {
     try {
 
         const today = dayjs()
-
         const targetDays = [0, 1, 3, 5, 7].map(days => today.add(days, 'day').toDate().setUTCHours(0, 0, 0, 0));
 
         const upcomingRenewals = await Subscription.find({

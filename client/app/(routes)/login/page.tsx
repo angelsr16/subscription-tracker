@@ -122,7 +122,7 @@ const Login = () => {
                 </p>
               )}
             </div>
-            <div className="flex justify-between items-center my-4">
+            {/* <div className="flex justify-between items-center my-4">
               <label className="flex items-center text-gray-600">
                 <input
                   type="checkbox"
@@ -135,7 +135,7 @@ const Login = () => {
               <Link href={"/forgot-password"} className="text-blue-500 text-sm">
                 Forgot password?
               </Link>
-            </div>
+            </div> */}
 
             <button
               type="submit"
