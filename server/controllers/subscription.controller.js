@@ -1,6 +1,8 @@
 import { NotFoundError, ValidationError } from "../middlewares/error.middleware.js";
 import Subscription from "../models/subscription.model.js";
+import { generateReminderSubject } from "../utils/generateReminderSubject.js";
 import { sendEmail } from "../utils/send-email.js"
+import dayjs from "dayjs";
 
 export const createSubscription = async (req, res, next) => {
     try {
@@ -113,16 +115,19 @@ export const getUpcomingRenewalDates = async (req, res, next) => {
             const MS_PER_DAY = 1000 * 60 * 60 * 24;
             for (const subscription of upcomingRenewals) {
                 const daysLeft = Math.round((subscription.renewalDate - today) / MS_PER_DAY)
-                console.log(daysLeft);
 
                 try {
-                     await sendEmail(subscription.user.email, "Reminder", "reminder-mail", {
-                         name: subscription.user.name,
-                         subscriptionName: subscription.name,
-                       	 renewalDate: renewalDate.format(),
-                         daysLeft: daysLeft
-                     });
-                     console.log(`Email sent to ${subscription.user.email}`);
+                    await sendEmail(
+                        subscription.user.email,
+                        generateReminderSubject(subscription, daysLeft),
+                        "reminder-mail",
+                        {
+                            name: subscription.user.name,
+                            subscriptionName: subscription.name,
+                            renewalDate: dayjs(subscription.renewalDate).format('DD/MM/YYYY'),
+                            daysLeft: daysLeft
+                        });
+                    console.log(`Email sent to ${subscription.user.email}`);
                 } catch (err) {
                     console.error(`Failed to send email to ${subscription.user.email}`, err);
                 }
