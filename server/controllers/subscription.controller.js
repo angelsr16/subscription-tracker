@@ -1,6 +1,6 @@
 import { NotFoundError, ValidationError } from "../middlewares/error.middleware.js";
 import Subscription from "../models/subscription.model.js";
-// import { sendEmail } from "../utils/send-email.js"
+import { sendEmail } from "../utils/send-email.js"
 
 export const createSubscription = async (req, res, next) => {
     try {
@@ -116,13 +116,13 @@ export const getUpcomingRenewalDates = async (req, res, next) => {
                 console.log(daysLeft);
 
                 try {
-                    // await sendEmail(subscription.user.email, "Reminder", "reminder-mail", {
-                    //     name: subscription.user.name,
-                    //     subscriptionName: subscription.name,
-                    //     renewalDate: renewalDate.format(),
-                    //     daysLeft: daysLeft
-                    // });
-                    // console.log(`Email sent to ${subscription.user.email}`);
+                     await sendEmail(subscription.user.email, "Reminder", "reminder-mail", {
+                         name: subscription.user.name,
+                         subscriptionName: subscription.name,
+                       	 renewalDate: renewalDate.format(),
+                         daysLeft: daysLeft
+                     });
+                     console.log(`Email sent to ${subscription.user.email}`);
                 } catch (err) {
                     console.error(`Failed to send email to ${subscription.user.email}`, err);
                 }
