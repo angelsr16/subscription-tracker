@@ -88,7 +88,10 @@ const AllSubscriptions = () => {
                   {subscription.status}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {format(new Date(subscription.startDate), "dd/MM/yyyy")}
+                  {format(
+                    new Date(subscription.startDate),
+                    "dd/MM/yyyy"
+                  )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {format(new Date(subscription.renewalDate), "dd/MM/yyyy")}
