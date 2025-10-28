@@ -2,16 +2,9 @@ import { NotFoundError, ValidationError } from "../middlewares/error.middleware.
 import Subscription from "../models/subscription.model.js";
 // import { sendEmail } from "../utils/send-email.js"
 
-import dayjs from "dayjs";
-import utc from 'dayjs/plugin/utc.js'
-import tz from 'dayjs/plugin/timezone.js'
-
-dayjs.extend(utc)
-dayjs.extend(tz)
-
-
 export const createSubscription = async (req, res, next) => {
     try {
+
         const subscription = await Subscription.create({
             ...req.body,
             user: req.user._id
@@ -99,59 +92,42 @@ export const cancelSubscription = async (req, res, next) => {
 
 export const getUpcomingRenewalDates = async (req, res, next) => {
     try {
-        const timeZone = dayjs.tz.guess()
-        const today = dayjs().utc().tz(timeZone).startOf('day');
-        const today_2 = dayjs().startOf('day');
+        const today = new Date()
+        today.setHours(0, 0, 0, 0);
 
-        console.log(today);
-        console.log(today_2);
+        const targetDays = [0, 1, 3, 5, 7].map(days => {
+            const target = new Date(today);
+            target.setDate(today.getDate() + days);
+            target.setHours(0, 0, 0, 0);
+            return target;
+        });
 
-        const targetDays = [0, 1, 3, 5, 7].map(days =>
-            today.add(days, 'day').toDate()
-        );
+        const upcomingRenewals = await Subscription.find({
+            renewalDate: { $in: targetDays }
+        }).select('name renewalDate startDate').populate('user', 'name email')
 
-        console.log(targetDays);
+        res.status(200).json({ success: true, data: upcomingRenewals })
 
-        res.status(200).json({ message: targetDays })
+        // 📨 Continue background work (non-blocking aws lambda call)
+        process.nextTick(async () => {
+            const MS_PER_DAY = 1000 * 60 * 60 * 24;
+            for (const subscription of upcomingRenewals) {
+                const daysLeft = Math.round((subscription.renewalDate - today) / MS_PER_DAY)
+                console.log(daysLeft);
 
-        // console.log(dayjs().utc().startOf('day'));
-        // console.log(dayjs())
-        // console.log("--------");
-        // const today = dayjs.utc('2025-10-27T00:00:00.000Z').startOf('day')
-
-        // const targetDays = [0, 1, 3, 5, 7].map(days =>
-        //     today.add(days, 'day').toDate()
-        // );
-
-        // console.log(targetDays);
-
-        // const upcomingRenewals = await Subscription.find({
-        //     renewalDate: { $in: targetDays }
-        // }).select('name renewalDate startDate').populate('user', 'name email')
-
-        // res.status(200).json({ success: true, data: upcomingRenewals })
-
-        // // 📨 Continue background work (non-blocking aws lambda call)
-        // process.nextTick(async () => {
-        //     for (const subscription of upcomingRenewals) {
-        //         const daysLeft = dayjs.utc(subscription.renewalDate).startOf('day').diff(today, 'day');
-
-        //         console.log(today)
-        //         console.log(daysLeft);
-
-        //         try {
-        //             // await sendEmail(subscription.user.email, "Reminder", "reminder-mail", {
-        //             //     name: subscription.user.name,
-        //             //     subscriptionName: subscription.name,
-        //             //     renewalDate: renewalDate.format(),
-        //             //     daysLeft: daysLeft
-        //             // });
-        //             console.log(`Email sent to ${subscription.user.email}`);
-        //         } catch (err) {
-        //             console.error(`Failed to send email to ${subscription.user.email}`, err);
-        //         }
-        //     }
-        // });
+                try {
+                    // await sendEmail(subscription.user.email, "Reminder", "reminder-mail", {
+                    //     name: subscription.user.name,
+                    //     subscriptionName: subscription.name,
+                    //     renewalDate: renewalDate.format(),
+                    //     daysLeft: daysLeft
+                    // });
+                    // console.log(`Email sent to ${subscription.user.email}`);
+                } catch (err) {
+                    console.error(`Failed to send email to ${subscription.user.email}`, err);
+                }
+            }
+        });
     } catch (error) {
         next(error);
     }
