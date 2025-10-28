@@ -1,6 +1,7 @@
 import { NotFoundError, ValidationError } from "../middlewares/error.middleware.js";
 import Subscription from "../models/subscription.model.js";
 import dayjs from "dayjs";
+import { sendEmail } from "../utils/send-email.js"
 
 export const createSubscription = async (req, res, next) => {
     try {
@@ -97,10 +98,31 @@ export const getUpcomingRenewalDates = async (req, res, next) => {
 
         const upcomingRenewals = await Subscription.find({
             renewalDate: { $in: targetDays }
-        }).select('name renewalDate').populate('user', 'email')
+        }).select('name renewalDate startDate').populate('user', 'name email')
 
         res.status(200).json({ success: true, data: upcomingRenewals })
 
+        upcomingRenewals.map((renewals) => {
+            console.log(renewals);
+        })
+
+        // 📨 Continue background work (non-blocking aws lambda call)
+        process.nextTick(async () => {
+            for (const subscription of upcomingRenewals) {
+                const daysLeft = subscription.renewalDate.diff(today, 'day');
+                try {
+                    await sendEmail(subscription.user.email, "Reminder", "reminder-mail", {
+                        name: subscription.user.name,
+                        subscriptionName: subscription.name,
+                        renewalDate: subscription.renewalDate,
+                        daysLeft: daysLeft
+                    });
+                    console.log(`Email sent to ${subscription.user.email}`);
+                } catch (err) {
+                    console.error(`Failed to send email to ${subscription.user.email}`, err);
+                }
+            }
+        });
     } catch (error) {
         next(error);
     }
