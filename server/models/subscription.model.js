@@ -70,8 +70,7 @@ subscriptionSchema.pre("save", function (next) {
             yearly: 365
         }
 
-        this.startDate.setHours(0, 0, 0, 0);
-        this.renewalDate = new Date(this.startDate).setHours(0, 0, 0, 0)
+        this.renewalDate = new Date(this.startDate)
         this.renewalDate.setDate(this.renewalDate.getDate() + renewalPeriods[this.frecuency])
         console.log(this.startDate);
         console.log(this.renewalDate);
