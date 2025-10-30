@@ -93,6 +93,12 @@ export const cancelSubscription = async (req, res, next) => {
 }
 
 export const getUpcomingRenewalDates = async (req, res, next) => {
+    const auth = req.headers.authorization;
+    if (auth !== `Bearer ${process.env.API_SECRET}`) {
+        return res.status(403).json({ message: "Forbidden" });
+    }
+
+
     try {
         const today = new Date()
         today.setHours(0, 0, 0, 0);
