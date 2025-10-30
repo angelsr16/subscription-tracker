@@ -6,22 +6,36 @@ import subscriptionRouter from "./routes/subscription.routes.js";
 import connectToDatabase from "./database/mongodb.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import cookieParser from 'cookie-parser';
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 
 const app = express();
 
 app.use(
     cors({
-        origin: ["https://subscription-tracker-ashy.vercel.app","http://localhost:3000"],
+        origin: ["https://subscription-tracker-ashy.vercel.app", "http://localhost:3000"],
         allowedHeaders: ["Authorization", "Content-Type"],
         credentials: true,
     })
 );
 
-app.use(express.json());
+app.use(express.json({ limit: "20mb" }));
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser());
 
 app.set("trust proxy", 1);
+
+// Apply rate limiting
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: (req) => (req.user ? 1000 : 50),
+    message: { error: "Too many requests, please try again later" },
+    standardHeaders: true,
+    legacyHeaders: true,
+    keyGenerator: (req) => ipKeyGenerator(req),
+});
+
+app.use(limiter);
+
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/subscriptions', subscriptionRouter);
