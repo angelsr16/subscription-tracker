@@ -3,6 +3,7 @@ import useAuthRedirect from "@/hooks/useAuthRedirect";
 import { format } from "date-fns";
 import axiosInstance from "@/utils/axiosInstance";
 import { useQuery } from "@tanstack/react-query";
+import { Subscription } from "@/types/subscription";
 
 const Dashboard = () => {
   useAuthRedirect({ requireAuth: true });
@@ -87,7 +88,7 @@ const Dashboard = () => {
                 <p className="p-5 text-lg">No pending renewals</p>
               ) : (
                 <>
-                  {data.upcomingRenewals.map((subscription: any) => (
+                  {data.upcomingRenewals.map((subscription: Subscription) => (
                     <tr
                       key={subscription._id}
                       className="border-zinc-700 border-b text-white/80"
