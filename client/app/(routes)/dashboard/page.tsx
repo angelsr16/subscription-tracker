@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import axiosInstance from "@/utils/axiosInstance";
 import { useQuery } from "@tanstack/react-query";
 import { Subscription } from "@/types/subscription";
+import { CalendarSync } from "lucide-react";
 
 const Dashboard = () => {
   useAuthRedirect({ requireAuth: true });
@@ -81,10 +82,11 @@ const Dashboard = () => {
                 <th className="px-6 py-3 w-[160px] whitespace-nowrap">
                   Renewal Date
                 </th>
+                <th className="w-[100px]">Action</th>
               </tr>
             </thead>
             <tbody>
-              {data.upcomingRenewals.length !== 0 ? (
+              {data.upcomingRenewals.length === 0 ? (
                 <p className="p-5 text-lg">No pending renewals</p>
               ) : (
                 <>
@@ -118,6 +120,12 @@ const Dashboard = () => {
                           new Date(subscription.renewalDate),
                           "dd/MM/yyyy"
                         )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <CalendarSync
+                          size={20}
+                          className="text-blue-500 cursor-pointer"
+                        />
                       </td>
                     </tr>
                   ))}
