@@ -1,10 +1,12 @@
 import { Router } from "express";
-import { cancelSubscription, createSubscription, deleteSubscription, getSubscriptionDetails, getUpcomingRenewalDates, getUserSubscriptions, reactivateSubscription } from "../controllers/subscription.controller.js";
+import { cancelSubscription, createSubscription, deleteSubscription, getSubscriptionDashboardDetails, getSubscriptionDetails, getUpcomingRenewalDates, getUserSubscriptions, reactivateSubscription } from "../controllers/subscription.controller.js";
 import { isAuthenticated } from "../middlewares/auth.middleware.js";
 
 const subscriptionRouter = Router();
 
-subscriptionRouter.get("/upcoming-renewals", getUpcomingRenewalDates)
+subscriptionRouter.get("/upcoming-renewals", getUpcomingRenewalDates);
+
+subscriptionRouter.get("/dashboard", isAuthenticated, getSubscriptionDashboardDetails)
 
 subscriptionRouter.get("/:id", isAuthenticated, getSubscriptionDetails);
 
