@@ -1,17 +1,21 @@
 "use client";
 import useUser from "@/hooks/useUser";
+import CancelSubscriptionModal from "@/shared/components/modals/cancel.subscription";
 import DeleteSubscriptionModal from "@/shared/components/modals/delete.subscription";
+import EditSubscriptionModal from "@/shared/components/modals/edit.subscription";
 import { Subscription } from "@/types/subscription";
 import axiosInstance from "@/utils/axiosInstance";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Trash2 } from "lucide-react";
+import { PenBox, RefreshCcwDot, Trash2, X } from "lucide-react";
 import { useState } from "react";
 
 const AllSubscriptions = () => {
   const [selectedSubscription, setSelectedSubscription] =
     useState<Subscription>();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const queryClient = useQueryClient();
   const { user, isFetched } = useUser();
@@ -41,6 +45,18 @@ const AllSubscriptions = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-subscriptions"] });
       setShowDeleteModal(false);
+      setSelectedSubscription(undefined);
+    },
+  });
+
+  const cancelSubscriptionMutation = useMutation({
+    mutationFn: async (subscriptionId: string) => {
+      await axiosInstance.put(`/api/v1/subscriptions/${subscriptionId}/cancel`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-subscriptions"] });
+      setShowDeleteModal(false);
+      setSelectedSubscription(undefined);
     },
   });
 
@@ -88,15 +104,33 @@ const AllSubscriptions = () => {
                   {subscription.status}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {format(
-                    new Date(subscription.startDate),
-                    "dd/MM/yyyy"
-                  )}
+                  {format(new Date(subscription.startDate), "dd/MM/yyyy")}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {format(new Date(subscription.renewalDate), "dd/MM/yyyy")}
                 </td>
                 <td className="px-6 py-4 flex gap-2 shrink-0">
+                  <PenBox
+                    onClick={() => {
+                      setSelectedSubscription(subscription);
+                      // setShowEditModal(true);
+                    }}
+                    size={20}
+                    className="text-blue-500 cursor-pointer"
+                  />
+                  {subscription.status === "active" ? (
+                    <X
+                      onClick={() => {
+                        setSelectedSubscription(subscription);
+                        setShowCancelModal(true);
+                      }}
+                      size={20}
+                      className="text-red-400 cursor-pointer"
+                    />
+                  ) : (
+                    <RefreshCcwDot size={20} className="cursor-pointer" />
+                  )}
+
                   <Trash2
                     onClick={() => {
                       setSelectedSubscription(subscription);
@@ -112,7 +146,7 @@ const AllSubscriptions = () => {
         </table>
       </div>
 
-      {/* Delete discount modal */}
+      {/* Delete subscription modal */}
       {showDeleteModal && selectedSubscription && (
         <DeleteSubscriptionModal
           subscription={selectedSubscription}
@@ -120,6 +154,26 @@ const AllSubscriptions = () => {
           onConfirm={() =>
             deleteSubscriptionMutation.mutate(selectedSubscription?._id)
           }
+        />
+      )}
+
+      {/* Cancel subscription modal */}
+      {showCancelModal && selectedSubscription && (
+        <CancelSubscriptionModal
+          subscription={selectedSubscription}
+          onClose={() => setShowCancelModal(false)}
+          onConfirm={() =>
+            cancelSubscriptionMutation.mutate(selectedSubscription?._id)
+          }
+        />
+      )}
+
+      {/* Edit subscription modal */}
+      {showEditModal && selectedSubscription && (
+        <EditSubscriptionModal
+          subscription={selectedSubscription}
+          onClose={() => setShowEditModal(false)}
+          onConfirm={() => {}}
         />
       )}
     </div>

@@ -1,1 +1,1 @@
-export const status = ["active", "cancelled", "expired"];
+export const status = ["active", "canceled", "expired"];

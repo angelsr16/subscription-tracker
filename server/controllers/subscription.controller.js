@@ -84,9 +84,9 @@ export const cancelSubscription = async (req, res, next) => {
             return next(new ValidationError("You are not the owner of this account"))
         }
 
-        await Subscription.updateOne({ _id: req.params.id }, { $set: { status: 'cancelled' } });
+        await Subscription.updateOne({ _id: req.params.id }, { $set: { status: 'canceled' } });
 
-        res.status(200).json({ success: true, message: `Subscription ${subscription.name} cancelled successfully` })
+        res.status(200).json({ success: true, message: `Subscription ${subscription.name} canceled successfully` })
     } catch (error) {
         next(error);
     }

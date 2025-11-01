@@ -2,7 +2,7 @@ import { Subscription } from "@/types/subscription";
 import { X } from "lucide-react";
 import React from "react";
 
-const DeleteSubscriptionModal = ({
+const CancelSubscriptionModal = ({
   subscription,
   onClose,
   onConfirm,
@@ -16,7 +16,7 @@ const DeleteSubscriptionModal = ({
       <div className="bg-gray-800 p-6 rounded-lg w-[450px] shadow-lg">
         {/* Header */}
         <div className="flex justify-between items-center border-b border-gray-700 pb-3">
-          <h3 className="text-xl text-white">Delete Subscription</h3>
+          <h3 className="text-xl text-white">Cancel Subscription</h3>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white cursor-pointer"
@@ -27,11 +27,10 @@ const DeleteSubscriptionModal = ({
         </div>
 
         <p className="text-gray-300 mt-4">
-          Are you sure you want to delete{" "}
+          Are you sure you want to cancel{" "}
           <span className="font-semibold text-white">{subscription.name}</span>
           ?
           <br />
-          This action cannot be undone.
         </p>
 
         {/* Action Buttons */}
@@ -44,10 +43,10 @@ const DeleteSubscriptionModal = ({
           </button>
 
           <button
-            className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-white cursor-pointer"
+            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-white cursor-pointer"
             onClick={onConfirm}
           >
-            Delete
+            Confirm
           </button>
         </div>
       </div>
@@ -55,4 +54,4 @@ const DeleteSubscriptionModal = ({
   );
 };
 
-export default DeleteSubscriptionModal;
+export default CancelSubscriptionModal;
