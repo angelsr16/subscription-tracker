@@ -2,7 +2,7 @@
 
 Proyecto Full Stack desarrollado con Next.js, Node.js y MongoDB, diseñado para administrar y recordar suscripciones de manera segura, automatizada y escalable.
 
-[![My Skills](https://skillicons.dev/icons?i=react,nextjs,tailwind,nodejs,python,mongodb,redis,aws)](https://skillicons.dev)
+[![My Skills](https://skillicons.dev/icons?i=react,nextjs,tailwind,nodejs,python,mongodb,redis,aws,nginx)](https://skillicons.dev)
 
 ## Descripción del proyecto
 
@@ -27,11 +27,71 @@ El sistema está optimizado para ofrecer una experiencia de usuario fluida, segu
 * ☁️ Infraestructura escalable en AWS
   * **Frontend**: desplegado en **Vercel**.
   * **Backend**: alojado en una instancia EC2 de **AWS**.
+  * **NGINX** como reverse proxy:
+    * NGINX se utiliza en la instancia EC2 para actuar como reverse proxy, manejar HTTPS, redirigir tráfico hacia la API Node.js
+    * Configurado para servir en el puerto 443, mientras la API Node.js corre internamente (**PM2**) en el puerto 4000.
+  * **PM2 como process manager**:
+    * Mantiene el proceso de Node.js activo y reinicia automáticamente en caso de fallos.
+    * Permite zero-downtime reloads y monitoreo en tiempo real de la API.
+    * Configuración utilizada para ejecutar el backend como servicio persistente.
   * **EventBridge + Lambda (Python)**: para la ejecución programada diaria.
   * Monitoreo y logs centralizados con **CloudWatch**
 * 🗃️ Base de datos NoSQL con MongoDB
   * Modelado flexible y rendimiento optimizado para consultas dinámicas.
   * Uso de Mongoose para validación de esquemas y relaciones.
+
+## Backend en AWS EC2 con NGINX + PM2
+
+El backend está implementado en una instancia **EC2**, utilizando **NGINX** y **PM2** para garantizar estabilidad, seguridad y disponibilidad en producción.
+
+**NGINX (Reverse Proxy)**
+
+* Recibe tráfico HTTPS (puerto 443)
+* Redirige a la API Node.js en `localhost:4000`
+* Maneja certificados SSL/TLS
+* Añade headers de seguridad
+* Permite escalar la arquitectura fácilmente
+
+Ejemplo de configuración del archivo `/etc/nginx/sites-available/default`
+
+```bash
+server {
+  listen 80;
+  server_name dominio.com
+}
+
+server {
+  listen 443 ssl;
+  server_name dominio.com
+
+  ssl_certificate /etc/letsencrypt/live/dominio.com/fullchain.pem
+  ssl_certificate_key /etc/letsencrypt/live/dominio.com/privkey.pem
+
+  location / {
+    proxy_pass http://localhost:4000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for
+  }
+}
+```
+
+**PM2 (Process Manager)**
+
+Se utiliza para ejecutar el backend Node.js como un servicio persistente
+
+* Mantiene la API siempre activa
+* Reinicio automático ante caídas
+* Logs unificados `(pm2 logs)`
+* Soporte para reinicio sin downtime (`pm2 reload`)
+* Compatible con `pm2 startup` para iniciar al prender la EC2
+
+Comandos usados en producción:
+
+```bash
+pm2 start src/app.js --interpreter node
+```
+
 
 ### Tecnologías usadas
 
@@ -41,7 +101,7 @@ El sistema está optimizado para ofrecer una experiencia de usuario fluida, segu
 |Backend   |Node.js - Express - JWT - Mongoose
 |Base de datos | MongoDB Atlas
 |Cache / OTP | Redis (Upstash)
-|Infraestructura | AWS EC2 - AWS Lambda - AWS EventBridge
+|Infraestructura | Nginx - AWS EC2 - AWS Lambda - AWS EventBridge
 |Despliegue | Vercel (frontend) - AWS EC2 (backend)
 
 ---
@@ -144,8 +204,3 @@ Base URL: `https://localhost:4000/api/v1/subscriptions`
 * Integrar **procesos serverless** mediante **AWS Lambda + EventBridge**.
 * Garantizar **seguridad, eficiencia y escalabilidad**.
 * Demostrar experiencia en **infraestructura en la nube y automatización**.
-
-## Autor
-
-**Ángel de Jesús Sánchez Romero**
-Ingeniero en Sistemas Computacionales, especializado en Desarrollo de Software
