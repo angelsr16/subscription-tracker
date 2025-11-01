@@ -3,6 +3,7 @@ import useUser from "@/hooks/useUser";
 import CancelSubscriptionModal from "@/shared/components/modals/cancel.subscription";
 import DeleteSubscriptionModal from "@/shared/components/modals/delete.subscription";
 import EditSubscriptionModal from "@/shared/components/modals/edit.subscription";
+import ReactivateSubscriptionModal from "@/shared/components/modals/reactivate.subscription";
 import { Subscription } from "@/types/subscription";
 import axiosInstance from "@/utils/axiosInstance";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -10,11 +11,17 @@ import { format } from "date-fns";
 import { PenBox, RefreshCcwDot, Trash2, X } from "lucide-react";
 import { useState } from "react";
 
+export type ReactivateData = {
+  subscriptionId: string;
+  startDate: Date;
+};
+
 const AllSubscriptions = () => {
   const [selectedSubscription, setSelectedSubscription] =
     useState<Subscription>();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showReactivateModal, setShowReactivateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
   const queryClient = useQueryClient();
@@ -50,12 +57,28 @@ const AllSubscriptions = () => {
   });
 
   const cancelSubscriptionMutation = useMutation({
+    mutationKey: ["cancel-subscription"],
     mutationFn: async (subscriptionId: string) => {
       await axiosInstance.put(`/api/v1/subscriptions/${subscriptionId}/cancel`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-subscriptions"] });
       setShowDeleteModal(false);
+      setSelectedSubscription(undefined);
+    },
+  });
+
+  const reactivateSubscriptionMutation = useMutation({
+    mutationKey: ["reactivate-subscription"],
+    mutationFn: async (reactivateData: ReactivateData) => {
+      await axiosInstance.put(
+        `/api/v1/subscriptions/${reactivateData.subscriptionId}/reactivate`,
+        { startDate: reactivateData.startDate }
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-subscriptions"] });
+      setShowReactivateModal(false);
       setSelectedSubscription(undefined);
     },
   });
@@ -128,7 +151,14 @@ const AllSubscriptions = () => {
                       className="text-red-400 cursor-pointer"
                     />
                   ) : (
-                    <RefreshCcwDot size={20} className="cursor-pointer" />
+                    <RefreshCcwDot
+                      onClick={() => {
+                        setSelectedSubscription(subscription);
+                        setShowReactivateModal(true);
+                      }}
+                      size={20}
+                      className="cursor-pointer"
+                    />
                   )}
 
                   <Trash2
@@ -164,6 +194,17 @@ const AllSubscriptions = () => {
           onClose={() => setShowCancelModal(false)}
           onConfirm={() =>
             cancelSubscriptionMutation.mutate(selectedSubscription?._id)
+          }
+        />
+      )}
+
+      {/* Reactivate subscription modal */}
+      {showReactivateModal && selectedSubscription && (
+        <ReactivateSubscriptionModal
+          subscription={selectedSubscription}
+          onClose={() => setShowReactivateModal(false)}
+          onConfirm={(reactivateData) =>
+            reactivateSubscriptionMutation.mutate(reactivateData)
           }
         />
       )}

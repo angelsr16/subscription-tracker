@@ -92,6 +92,49 @@ export const cancelSubscription = async (req, res, next) => {
     }
 }
 
+export const reactivateSubscription = async (req, res, next) => {
+    try {
+        const subscription = await Subscription.findOne({ _id: req.params.id }).populate('user', "_id")
+
+        if (!subscription) {
+            return next(new NotFoundError("Subscription not found"))
+        }
+
+        if (subscription.user._id.toString() !== req.user.id) {
+            return next(new ValidationError("You are not the owner of this account"))
+        }
+
+        const { startDate } = req.body;
+
+        const renewalPeriods = {
+            daily: 1,
+            weekly: 7,
+            monthly: 30,
+            yearly: 365
+        }
+
+        const baseDate = new Date(startDate);
+
+        const year = baseDate.getUTCFullYear();
+        const month = baseDate.getUTCMonth();
+        const day = baseDate.getUTCDate();
+
+        const newStartDate = new Date(year, month, day, 0, 0, 0);
+        const renewalDate = new Date(newStartDate)
+        renewalDate.setDate(renewalDate.getDate() + renewalPeriods[subscription.frecuency])
+
+        await Subscription.updateOne({ _id: req.params.id },
+            {
+                $set:
+                    { status: 'active', startDate: newStartDate, renewalDate: renewalDate }
+            });
+
+        res.status(200).json({ success: true, message: `Subscription ${subscription.name} canceled successfully` })
+    } catch (error) {
+        next(error);
+    }
+}
+
 export const getUpcomingRenewalDates = async (req, res, next) => {
     const auth = req.headers.authorization;
     if (auth !== `Bearer ${process.env.API_SECRET}`) {

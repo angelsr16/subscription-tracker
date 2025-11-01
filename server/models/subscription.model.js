@@ -79,9 +79,8 @@ subscriptionSchema.pre("save", function (next) {
         this.startDate = new Date(year, month, day, 0, 0, 0);
         this.renewalDate = new Date(this.startDate)
         this.renewalDate.setDate(this.renewalDate.getDate() + renewalPeriods['monthly'])
-        console.log("START DATE: ", this.startDate);
-        console.log("RENEWAL: ", this.renewalDate);
-}
+
+    }
 
     // Auto update the status if renewal date has passed
     if (this.renewalDate < new Date()) {

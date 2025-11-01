@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { cancelSubscription, createSubscription, deleteSubscription, getSubscriptionDetails, getUpcomingRenewalDates, getUserSubscriptions } from "../controllers/subscription.controller.js";
+import { cancelSubscription, createSubscription, deleteSubscription, getSubscriptionDetails, getUpcomingRenewalDates, getUserSubscriptions, reactivateSubscription } from "../controllers/subscription.controller.js";
 import { isAuthenticated } from "../middlewares/auth.middleware.js";
 
 const subscriptionRouter = Router();
@@ -16,7 +16,7 @@ subscriptionRouter.get("/user/:id", isAuthenticated, getUserSubscriptions);
 
 subscriptionRouter.put("/:id/cancel", isAuthenticated, cancelSubscription);
 
-
+subscriptionRouter.put("/:id/reactivate", isAuthenticated, reactivateSubscription)
 
 // TODO: Implement update subscription data
 subscriptionRouter.put("/:id", (req, res) => {
