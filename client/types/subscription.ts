@@ -4,6 +4,8 @@ export interface Subscription {
   price: number;
   currency: string;
   startDate: Date;
+  frecuency: string;
   renewalDate: Date;
   status: string;
+  renewalStatus: string;
 }

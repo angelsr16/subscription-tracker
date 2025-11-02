@@ -76,6 +76,7 @@ const Dashboard = () => {
                 <th className="px-6 py-3 w-[120px]">Name</th>
                 <th className="px-6 py-3 w-[100px]">Price</th>
                 <th className="px-6 py-3 w-[120px]">Status</th>
+                <th className="px-6 py-3 w-[120px]">Renewal Status</th>
                 <th className="px-6 py-3 w-[160px] whitespace-nowrap">
                   Last Renewal Date
                 </th>
@@ -86,11 +87,15 @@ const Dashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {data.upcomingRenewals.length === 0 ? (
-                <p className="p-5 text-lg">No pending renewals</p>
+              {data.pendingRenewals.length === 0 ? (
+                <tr>
+                  <td colSpan={6}>
+                    <p className="p-5 text-lg">No pending renewals</p>
+                  </td>
+                </tr>
               ) : (
                 <>
-                  {data.upcomingRenewals.map((subscription: Subscription) => (
+                  {data.pendingRenewals.map((subscription: Subscription) => (
                     <tr
                       key={subscription._id}
                       className="border-zinc-700 border-b text-white/80"
@@ -111,6 +116,16 @@ const Dashboard = () => {
                         }`}
                       >
                         {subscription.status}
+                      </td>
+                      <td
+                        className={`px-6 py-4 font-semibold ${
+                          subscription.renewalStatus === "active"
+                            ? "text-green-500"
+                            : subscription.renewalStatus === "pending" &&
+                              "text-gray-500"
+                        }`}
+                      >
+                        {subscription.renewalStatus}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {format(new Date(subscription.startDate), "dd/MM/yyyy")}

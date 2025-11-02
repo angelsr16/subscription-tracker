@@ -93,12 +93,11 @@ const AllSubscriptions = () => {
             <tr>
               <th className="px-6 py-3 w-[120px]">Name</th>
               <th className="px-6 py-3 w-[100px]">Price</th>
-              <th className="px-6 py-3 w-[120px]">Status</th>
+              <th className="px-6 py-3 w-[100px]">Frecuency</th>
+              <th className="px-6 py-3 w-[90px]">Status</th>
+              <th className="px-6 py-3 w-[100px]">Renewal Status</th>
               <th className="px-6 py-3 w-[160px] whitespace-nowrap">
-                Last Renewal Date
-              </th>
-              <th className="px-6 py-3 w-[160px] whitespace-nowrap">
-                Renewal Date
+                Billing Cycle
               </th>
               <th className="px-6 py-3 w-[100px]">Actions</th>
             </tr>
@@ -115,6 +114,9 @@ const AllSubscriptions = () => {
                 <td className="px-6 py-4 whitespace-nowrap">
                   ${subscription.price} {subscription.currency}
                 </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {subscription.frecuency}
+                </td>
                 <td
                   className={`px-6 py-4 font-semibold ${
                     subscription.status === "active"
@@ -126,10 +128,19 @@ const AllSubscriptions = () => {
                 >
                   {subscription.status}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {format(new Date(subscription.startDate), "dd/MM/yyyy")}
+
+                <td
+                  className={`px-6 py-4 font-semibold ${
+                    subscription.renewalStatus === "active"
+                      ? "text-green-500"
+                      : subscription.renewalStatus === "pending" &&
+                        "text-gray-500"
+                  }`}
+                >
+                  {subscription.renewalStatus}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
+                  {format(new Date(subscription.startDate), "dd/MM/yyyy")} -{" "}
                   {format(new Date(subscription.renewalDate), "dd/MM/yyyy")}
                 </td>
                 <td className="px-6 py-4 flex gap-2 shrink-0">

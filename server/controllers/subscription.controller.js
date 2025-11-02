@@ -1,5 +1,6 @@
 import { NotFoundError, ValidationError } from "../middlewares/error.middleware.js";
 import Subscription from "../models/subscription.model.js";
+import { getMonthlyRecurringCost, getPendingRenewals, getUpcomingRenewals, getYearlyRecurringCost } from "../utils/dashboard.subscriptions.js";
 import { generateReminderSubject } from "../utils/generateReminderSubject.js";
 import { sendEmail } from "../utils/send-email.js"
 import dayjs from "dayjs";
@@ -33,65 +34,23 @@ export const getUserSubscriptions = async (req, res, next) => {
     }
 }
 
-const getMonthlyCost = (sub) => {
-    switch (sub.frecuency) {
-        case "daily":
-            return sub.price * 30;
-        case "weekly":
-            return sub.price * 4.345;      // avg weeks per month
-        case "monthly":
-            return sub.price;
-        case "yearly":
-            return sub.price / 12;
-        default:
-            return 0;
-    }
-};
-
-const getYearlyCost = (sub) => {
-    switch (sub.frecuency) {
-        case "daily":
-            return sub.price * 365;
-        case "weekly":
-            return sub.price * 52;
-        case "monthly":
-            return sub.price * 12;
-        case "yearly":
-            return sub.price;
-        default:
-            return 0;
-    }
-};
-
 export const getSubscriptionDashboardDetails = async (req, res, next) => {
     try {
         const subscriptions = await Subscription.find({ user: req.user.id })
 
         const totalActive = subscriptions.filter(s => s.status === "active").length;
-        const monthlyRecurringCost = subscriptions
-            .filter(s => s.status === "active")
-            .reduce((sum, sub) => sum + getMonthlyCost(sub), 0);
+        const monthlyRecurringCost = getMonthlyRecurringCost(subscriptions);
+        const yearlyRecurringCost = getYearlyRecurringCost(subscriptions);
+        const upcomingRenewals = getUpcomingRenewals(subscriptions);
+        const pendingRenewals = getPendingRenewals(subscriptions);
 
-        const yearlyRecurringCost = subscriptions
-            .filter(s => s.status === "active")
-            .reduce((sum, sub) => sum + getYearlyCost(sub), 0);
-
-        const now = new Date();
-        const next10 = new Date();
-        next10.setDate(now.getDate() + 10);
-
-        const upcomingRenewals = subscriptions.filter(sub =>
-            sub.status === "active" &&
-            sub.renewalDate &&
-            sub.renewalDate >= now &&
-            sub.renewalDate <= next10
-        );
 
         const dashboardDetails = {
             upcomingRenewals,
             yearlyRecurringCost,
             totalActive,
-            monthlyRecurringCost
+            monthlyRecurringCost,
+            pendingRenewals
         }
 
 
@@ -209,7 +168,6 @@ export const getUpcomingRenewalDates = async (req, res, next) => {
         return res.status(403).json({ message: "Forbidden" });
     }
 
-
     try {
         const today = new Date()
         today.setHours(0, 0, 0, 0);
@@ -222,7 +180,9 @@ export const getUpcomingRenewalDates = async (req, res, next) => {
         });
 
         const upcomingRenewals = await Subscription.find({
-            renewalDate: { $in: targetDays }
+            renewalDate: { $in: targetDays },
+            status: 'active',
+            renewalStatus: 'pending'
         }).select('name renewalDate startDate').populate('user', 'name email')
 
         res.status(200).json({ success: true, data: upcomingRenewals })
