@@ -99,6 +99,26 @@ export const deleteSubscription = async (req, res, next) => {
     }
 }
 
+export const renewSubscription = async (req, res, next) => {
+    try {
+        const subscription = await Subscription.findOne({ _id: req.params.id }).populate('user', "_id")
+
+        if (!subscription) {
+            return next(new NotFoundError("Subscription not found"))
+        }
+
+        if (subscription.user._id.toString() !== req.user.id) {
+            return next(new ValidationError("You are not the owner of this account"))
+        }
+
+        await Subscription.updateOne({ _id: req.params.id }, { $set: { renewalStatus: 'active' } });
+
+        res.status(200).json({ success: true, message: `Subscription ${subscription.name} renewed successfully` })
+    } catch (error) {
+        next(error);
+    }
+}
+
 export const cancelSubscription = async (req, res, next) => {
     try {
         const subscription = await Subscription.findOne({ _id: req.params.id }).populate('user', "_id")
@@ -162,6 +182,68 @@ export const reactivateSubscription = async (req, res, next) => {
     }
 }
 
+// Gets called at 23:59 every day
+export const recalculateBillingCycle = async (req, res, next) => {
+    try {
+        const auth = req.headers.authorization;
+        if (auth !== `Bearer ${process.env.API_SECRET}`) {
+            return res.status(403).json({ message: "Forbidden" });
+        }
+
+        const today = new Date()
+        today.setHours(0, 0, 0, 0);
+
+        const subscriptionToRenew = await Subscription.find({
+            renewalDate: { $in: today },
+            status: 'active',
+            renewalStatus: 'active'
+        }).select('name renewalDate startDate frecuency');
+
+        res.status(200).json({ success: true, data: subscriptionToRenew })
+
+        // 📨 Continue background work(non - blocking aws lambda call)
+        process.nextTick(async () => {
+            for (const subscription of subscriptionToRenew) {
+                try {
+                    const lastRenewalDate = subscription.renewalDate;
+
+                    const renewalPeriods = {
+                        daily: 1,
+                        weekly: 7,
+                        monthly: 30,
+                        yearly: 365
+                    }
+
+                    const baseDate = new Date(lastRenewalDate);
+
+                    const year = baseDate.getUTCFullYear();
+                    const month = baseDate.getUTCMonth();
+                    const day = baseDate.getUTCDate();
+
+                    const newStartDate = new Date(year, month, day, 0, 0, 0);
+                    const renewalDate = new Date(newStartDate)
+                    renewalDate.setDate(renewalDate.getDate() + renewalPeriods[subscription.frecuency])
+
+                    await Subscription.updateOne({ _id: subscription._id },
+                        {
+                            $set:
+                            {
+                                renewalStatus: 'pending',
+                                startDate: newStartDate,
+                                renewalDate: renewalDate
+                            }
+                        });
+                } catch (err) {
+                    console.error(`Failed to updatate renewal status to ${subscription.name}`, err);
+                }
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+// Gets called every day at 07:00 am
 export const getUpcomingRenewalDates = async (req, res, next) => {
     const auth = req.headers.authorization;
     if (auth !== `Bearer ${process.env.API_SECRET}`) {
