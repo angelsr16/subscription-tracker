@@ -47,7 +47,7 @@ export const getUpcomingRenewals = (subscriptions) => {
 
     return subscriptions.filter(sub =>
         sub.status === "active" &&
-        sub.renewalStatus === 'pending' &&
+        sub.renewalStatus === 'active' &&
         sub.renewalDate &&
         sub.renewalDate >= now &&
         sub.renewalDate <= next10
